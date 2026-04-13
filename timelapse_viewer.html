@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌱 Timelapse Plantes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:    #3B6D11;
+    --green-bg: #EAF3DE;
+    --green-mid:#639922;
+    --text:     #2C2C2A;
+    --muted:    #5F5E5A;
+    --border:   rgba(0,0,0,0.12);
+    --bg:       #F7F6F1;
+    --card:     #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text:    #E8E6DF;
+      --muted:   #B4B2A9;
+      --border:  rgba(255,255,255,0.12);
+      --bg:      #1C1C1A;
+      --card:    #2C2C2A;
+      --green-bg:#173404;
+    }
+  }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--green-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: normal;
+    letter-spacing: -0.3px;
+    color: var(--green);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  select {
+    background: var(--card);
+    color: var(--text);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  button {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: default; }
+
+  button.secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 0.5px solid var(--border);
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* Barre de stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--green);
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* Lecteur timelapse */
+  .player-section {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .player-frame {
+    position: relative;
+    background: #0a0a0a;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #player-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: none;
+  }
+
+  .player-overlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .player-placeholder {
+    text-align: center;
+    color: #666;
+  }
+
+  .player-placeholder .big {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .player-controls {
+    padding: 1rem 1.25rem;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .timeline {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--green);
+  }
+
+  .timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    margin-top: 2px;
+  }
+
+  .fps-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .fps-control input[type=range] {
+    width: 80px;
+  }
+
+  /* Grille miniatures */
+  .grid-section h2 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+
+  .thumb {
+    aspect-ratio: 4/3;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    background: var(--card);
+    position: relative;
+  }
+
+  .thumb:hover { border-color: var(--green); }
+  .thumb.active { border-color: var(--green-mid); }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .thumb-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    font-size: 9px;
+    font-family: 'Courier New', monospace;
+    padding: 2px 4px;
+    text-align: center;
+  }
+
+  /* Loading / vide */
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+  }
+
+  .loading-bar {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .loading-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  .status-bar {
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    color: var(--muted);
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .dot-ok { color: var(--green-mid); }
+  .dot-err { color: #E24B4A; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    <div>
+      <h1>Timelapse Plantes</h1>
+      <div class="subtitle">zxznkslfndrxxgjluafo.supabase.co</div>
+    </div>
+  </div>
+  <div class="controls">
+    <select id="plant-select">
+      <option value="">Chargement...</option>
+    </select>
+    <button id="btn-refresh" class="secondary" onclick="loadPhotos()">↺ Actualiser</button>
+    <button id="btn-play" onclick="togglePlay()" disabled>▶ Lecture</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">PHOTOS</div>
+      <div class="stat-value" id="stat-count">—</div>
+      <div class="stat-sub" id="stat-size">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DURÉE COUVERTE</div>
+      <div class="stat-value" id="stat-duration">—</div>
+      <div class="stat-sub" id="stat-interval">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DERNIÈRE PHOTO</div>
+      <div class="stat-value" id="stat-last">—</div>
+      <div class="stat-sub" id="stat-ago">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">TIMELAPSE @ 12fps</div>
+      <div class="stat-value" id="stat-video">—</div>
+      <div class="stat-sub">durée estimée</div>
+    </div>
+  </div>
+
+  <div class="player-section">
+    <div class="player-frame" id="player-frame">
+      <div class="player-placeholder" id="placeholder">
+        <div class="big">🌱</div>
+        <div>Sélectionne une plante et charge les photos</div>
+      </div>
+      <img id="player-img" alt="Photo timelapse" />
+      <div class="player-overlay" id="player-overlay" style="display:none">
+        <span id="overlay-idx">1/1</span> · <span id="overlay-time"></span>
+      </div>
+    </div>
+    <div class="player-controls">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onclick="stepFrame(-1)" id="btn-prev" disabled>‹</button>
+        <button onclick="togglePlay()" id="btn-play2" disabled>▶</button>
+        <button onclick="stepFrame(1)" id="btn-next" disabled>›</button>
+      </div>
+      <div class="timeline">
+        <input type="range" id="scrubber" min="0" value="0" step="1" oninput="scrubTo(this.value)" disabled>
+        <div class="timeline-labels">
+          <span id="tl-start">—</span>
+          <span id="tl-end">—</span>
+        </div>
+      </div>
+      <div class="fps-control">
+        <span>Vitesse</span>
+        <input type="range" id="fps-slider" min="1" max="30" value="12" oninput="updateFps(this.value)" disabled>
+        <span id="fps-label">12 fps</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-section">
+    <h2>TOUTES LES PHOTOS</h2>
+    <div class="thumb-grid" id="thumb-grid">
+      <div class="empty-state" style="grid-column:1/-1">
+        Aucune photo chargée
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="status-bar">En attente...</div>
+
+</main>
+
+<script>
+const SUPABASE_URL = 'https://zxznkslfndrxxgjluafo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4em5rc2xmbmRyeHhnamx1YWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc5NTAsImV4cCI6MjA5MTYwMzk1MH0.8ULd1mfq6MYeW7vjHjIbAy498W7SfyxQ0r1LgWv1-Q0';
+const BUCKET = 'timelapse';
+
+let photos = [];
+let currentIdx = 0;
+let playing = false;
+let timer = null;
+let fps = 12;
+
+function status(msg, ok = true) {
+  const el = document.getElementById('status-bar');
+  el.innerHTML = `<span class="${ok ? 'dot-ok' : 'dot-err'}">●</span> ${msg}`;
+}
+
+async function apiFetch(path) {
+  const res = await fetch(SUPABASE_URL + path, {
+    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function imgUrl(storagePath) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${storagePath}`;
+}
+
+function fmtDate(ts) {
+  return new Date(ts * 1000).toLocaleString('fr-FR', {
+    day: '2-digit', month: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function fmtAgo(ts) {
+  const diff = Math.floor(Date.now() / 1000 - ts);
+  if (diff < 60) return diff + 's';
+  if (diff < 3600) return Math.floor(diff / 60) + ' min';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+  return Math.floor(diff / 86400) + 'j';
+}
+
+function fmtDuration(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return h + 'h' + String(m).padStart(2,'0');
+  return m + ' min';
+}
+
+async function loadPlants() {
+  status('Chargement des plantes...');
+  try {
+    const data = await apiFetch('/rest/v1/timelapse_photos?select=plant_name&order=plant_name');
+    const names = [...new Set(data.map(r => r.plant_name))];
+    const sel = document.getElementById('plant-select');
+    if (names.length === 0) {
+      sel.innerHTML = '<option>Aucune photo encore</option>';
+      status('Aucune photo dans la base. Lance l\'ESP32 !', false);
+      return;
+    }
+    sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+    loadPhotos();
+  } catch (e) {
+    status('Erreur chargement: ' + e.message, false);
+  }
+}
+
+async function loadPhotos() {
+  const plant = document.getElementById('plant-select').value;
+  if (!plant) return;
+
+  status('Chargement des photos...');
+  document.getElementById('thumb-grid').innerHTML = `
+    <div class="empty-state" style="grid-column:1/-1">
+      <div class="loading-bar">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>`;
+
+  try {
+    const data = await apiFetch(
+      `/rest/v1/timelapse_photos?plant_name=eq.${encodeURIComponent(plant)}&order=taken_at.asc&select=*`
+    );
+    photos = data;
+    renderGrid();
+    updateStats();
+    if (photos.length > 0) showFrame(0);
+    status(`${photos.length} photos chargées pour "${plant}"`);
+  } catch (e) {
+    status('Erreur: ' + e.message, false);
+  }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('thumb-grid');
+  if (photos.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Aucune photo</div>';
+    return;
+  }
+  grid.innerHTML = photos.map((p, i) => {
+    const ts = new Date(p.taken_at).getTime() / 1000;
+    return `<div class="thumb" id="thumb-${i}" onclick="showFrame(${i})">
+      <img src="${imgUrl(p.storage_path)}" alt="" loading="lazy" />
+      <div class="thumb-label">${fmtDate(ts)}</div>
+    </div>`;
+  }).join('');
+
+  enableControls();
+}
+
+function enableControls() {
+  const btns = ['btn-play', 'btn-play2', 'btn-prev', 'btn-next'];
+  btns.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = photos.length === 0;
+  });
+  const scrubber = document.getElementById('scrubber');
+  scrubber.max = Math.max(0, photos.length - 1);
+  scrubber.disabled = photos.length === 0;
+  document.getElementById('fps-slider').disabled = photos.length === 0;
+}
+
+function showFrame(idx) {
+  if (photos.length === 0) return;
+  idx = Math.max(0, Math.min(photos.length - 1, idx));
+  currentIdx = idx;
+
+  const p = photos[idx];
+  const img = document.getElementById('player-img');
+  const placeholder = document.getElementById('placeholder');
+  const overlay = document.getElementById('player-overlay');
+
+  img.src = imgUrl(p.storage_path);
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  overlay.style.display = 'block';
+
+  const ts = new Date(p.taken_at).getTime() / 1000;
+  document.getElementById('overlay-idx').textContent = `${idx + 1}/${photos.length}`;
+  document.getElementById('overlay-time').textContent = fmtDate(ts);
+
+  document.getElementById('scrubber').value = idx;
+
+  // Highlight miniature active
+  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+  const activeThumb = document.getElementById('thumb-' + idx);
+  if (activeThumb) {
+    activeThumb.classList.add('active');
+    activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  // Timeline labels
+  if (idx === 0) {
+    const first = new Date(photos[0].taken_at).getTime() / 1000;
+    document.getElementById('tl-start').textContent = fmtDate(first);
+  }
+  if (photos.length > 1) {
+    const last = new Date(photos[photos.length-1].taken_at).getTime() / 1000;
+    document.getElementById('tl-end').textContent = fmtDate(last);
+  }
+}
+
+function stepFrame(delta) {
+  showFrame(currentIdx + delta);
+}
+
+function scrubTo(val) {
+  showFrame(parseInt(val));
+}
+
+function togglePlay() {
+  playing = !playing;
+  const label = playing ? '⏸ Pause' : '▶ Lecture';
+  document.getElementById('btn-play').textContent = label;
+  document.getElementById('btn-play2').textContent = playing ? '⏸' : '▶';
+
+  if (playing) {
+    playLoop();
+  } else {
+    clearTimeout(timer);
+  }
+}
+
+function playLoop() {
+  if (!playing) return;
+  let next = currentIdx + 1;
+  if (next >= photos.length) next = 0; // boucle
+  showFrame(next);
+  timer = setTimeout(playLoop, 1000 / fps);
+}
+
+function updateFps(val) {
+  fps = parseInt(val);
+  document.getElementById('fps-label').textContent = fps + ' fps';
+}
+
+function updateStats() {
+  if (photos.length === 0) return;
+
+  const first = new Date(photos[0].taken_at).getTime() / 1000;
+  const last  = new Date(photos[photos.length-1].taken_at).getTime() / 1000;
+  const durationSec = last - first;
+
+  document.getElementById('stat-count').textContent = photos.length;
+  document.getElementById('stat-size').textContent = ''; // optionnel
+
+  if (durationSec > 0) {
+    document.getElementById('stat-duration').textContent = fmtDuration(durationSec);
+    const intervalSec = durationSec / (photos.length - 1);
+    document.getElementById('stat-interval').textContent = 'intervalle ~' + Math.round(intervalSec / 60) + ' min';
+  } else {
+    document.getElementById('stat-duration').textContent = '—';
+  }
+
+  document.getElementById('stat-last').textContent = fmtDate(last);
+  document.getElementById('stat-ago').textContent = 'il y a ' + fmtAgo(last);
+
+  const videoSec = photos.length / 12;
+  document.getElementById('stat-video').textContent =
+    videoSec < 60 ? Math.round(videoSec) + 's' : Math.round(videoSec / 60) + ' min';
+}
+
+// Auto-refresh toutes les 5 min
+setInterval(() => {
+  if (!playing) loadPhotos();
+}, 5 * 60 * 1000);
+
+// Init
+loadPlants();
+</script>
+</body>
+</html>
