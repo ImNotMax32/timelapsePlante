@@ -1,15 +1,9 @@
-/*
- * ESP32-CAM — Timelapse Plantes
- * Upload automatique vers Supabase Storage toutes les X minutes
- * 
- * Board : AI Thinker ESP32-CAM
- * Librairies requises : esp32 board package (Espressif)
- */
 
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
+#include <WiFiManager.h>
 #include <time.h>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
@@ -17,9 +11,6 @@
 // ─────────────────────────────────────────
 //  CONFIG — À MODIFIER
 // ─────────────────────────────────────────
-const char* WIFI_SSID     = "iPhone de Maximilien";
-const char* WIFI_PASSWORD = "123456789";
-
 const char* SUPABASE_URL  = "https://zxznkslfndrxxgjluafo.supabase.co";
 const char* SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4em5rc2xmbmRyeHhnamx1YWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc5NTAsImV4cCI6MjA5MTYwMzk1MH0.8ULd1mfq6MYeW7vjHjIbAy498W7SfyxQ0r1LgWv1-Q0";
 const char* PLANT_NAME    = "bureau";       // nom du dossier dans le bucket
@@ -105,21 +96,36 @@ bool initCamera() {
 
 
 bool connectWiFi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFiManager wm;
+  wm.setConfigPortalTimeout(180); // 3 min pour configurer, puis reboot
+  wm.setConnectTimeout(20);
   Serial.print("📡 WiFi");
-  for (int i = 0; i < 30 && WiFi.status() != WL_CONNECTED; i++) {
-    delay(500);
-    Serial.print(".");
-  }
-  if (WiFi.status() == WL_CONNECTED) {
-    /* Évite veille modem : sans ça, uploads HTTPS intermittents après plusieurs minutes (hotspot / AP). */
+  /* autoConnect : si des identifiants sont sauvegardés → connexion directe.
+     Sinon → crée un AP "ESP32-CAM-Setup" (192.168.4.1) pour configurer via navigateur. */
+  bool connected = wm.autoConnect("ESP32-CAM-Setup");
+  if (connected) {
     WiFi.setSleep(false);
     Serial.printf("\n✅ Connecté — IP: %s RSSI: %d dBm\n",
       WiFi.localIP().toString().c_str(), WiFi.RSSI());
     return true;
   }
   Serial.println("\n❌ WiFi échoué");
+  return false;
+}
+
+bool reconnectWiFi() {
+  Serial.print("📡 Reconnexion");
+  WiFi.reconnect();
+  for (int i = 0; i < 20 && WiFi.status() != WL_CONNECTED; i++) {
+    delay(500);
+    Serial.print(".");
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("\n✅ Reconnecté — IP: %s\n", WiFi.localIP().toString().c_str());
+    return true;
+  }
+  Serial.println("\n❌ Reconnexion échouée — reboot");
+  ESP.restart();
   return false;
 }
 
@@ -164,7 +170,7 @@ static bool uploadJpegWithRetries(uint8_t* data, size_t len, const String& uploa
   const int kMaxTries = 3;
   for (int attempt = 1; attempt <= kMaxTries; attempt++) {
     if (WiFi.status() != WL_CONNECTED) {
-      connectWiFi();
+      reconnectWiFi();
     }
 
     WiFiClientSecure client;
@@ -268,7 +274,7 @@ void setup() {
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED) connectWiFi();
+  if (WiFi.status() != WL_CONNECTED) reconnectWiFi();
 
   unsigned long now = millis();
   if (now - lastCapture >= INTERVAL_MS) {
