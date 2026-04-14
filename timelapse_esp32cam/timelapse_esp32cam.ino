@@ -13,8 +13,8 @@
 // ─────────────────────────────────────────
 const char* SUPABASE_URL  = "https://zxznkslfndrxxgjluafo.supabase.co";
 const char* SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4em5rc2xmbmRyeHhnamx1YWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc5NTAsImV4cCI6MjA5MTYwMzk1MH0.8ULd1mfq6MYeW7vjHjIbAy498W7SfyxQ0r1LgWv1-Q0";
-const char* PLANT_NAME    = "bureau";       // nom du dossier dans le bucket
-const int   INTERVAL_MIN  = 10;             // intervalle en minutes
+const char* PLANT_NAME    = "Champignon";       // nom du dossier dans le bucket
+const int   INTERVAL_MIN  = 5;             // intervalle en minutes
 
 // ─────────────────────────────────────────
 //  PINS AI THINKER ESP32-CAM
@@ -95,28 +95,54 @@ bool initCamera() {
 }
 
 
+// Réseaux connus à tester en priorité
+static const char* KNOWN_SSIDS[] = { "Salon", "Salon_Guest" };
+static const char* KNOWN_PASS    = "BaguetteEtFromage";
+static const int   KNOWN_COUNT   = 2;
+
+bool tryKnownNetworks() {
+  for (int n = 0; n < KNOWN_COUNT; n++) {
+    Serial.printf("📡 Essai '%s'", KNOWN_SSIDS[n]);
+    WiFi.begin(KNOWN_SSIDS[n], KNOWN_PASS);
+    for (int i = 0; i < 24 && WiFi.status() != WL_CONNECTED; i++) {
+      delay(500);
+      Serial.print(".");
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+      WiFi.setSleep(false);
+      Serial.printf("\n✅ Connecté — IP: %s RSSI: %d dBm\n",
+        WiFi.localIP().toString().c_str(), WiFi.RSSI());
+      return true;
+    }
+    WiFi.disconnect(true);
+    delay(300);
+    Serial.println(" ✗");
+  }
+  return false;
+}
+
 bool connectWiFi() {
+  // 1) Essaie les réseaux connus
+  if (tryKnownNetworks()) return true;
+
+  // 2) Fallback : portail WiFiManager (AP "ESP32-CAM-Setup")
+  Serial.println("📡 Ouverture portail WiFiManager...");
   WiFiManager wm;
-  wm.setConfigPortalTimeout(180); // 3 min pour configurer, puis reboot
-  wm.setConnectTimeout(20);
-  Serial.print("📡 WiFi");
-  /* autoConnect : si des identifiants sont sauvegardés → connexion directe.
-     Sinon → crée un AP "ESP32-CAM-Setup" (192.168.4.1) pour configurer via navigateur. */
-  bool connected = wm.autoConnect("ESP32-CAM-Setup");
-  if (connected) {
+  wm.setConfigPortalTimeout(180);
+  if (wm.startConfigPortal("ESP32-CAM-Setup")) {
     WiFi.setSleep(false);
-    Serial.printf("\n✅ Connecté — IP: %s RSSI: %d dBm\n",
-      WiFi.localIP().toString().c_str(), WiFi.RSSI());
+    Serial.printf("✅ Configuré — IP: %s\n", WiFi.localIP().toString().c_str());
     return true;
   }
-  Serial.println("\n❌ WiFi échoué");
+  Serial.println("❌ WiFi échoué");
   return false;
 }
 
 bool reconnectWiFi() {
-  Serial.print("📡 Reconnexion");
+  // Essaie d'abord une reconnexion rapide (identifiants mémorisés)
+  Serial.print("📡 Reconnexion rapide");
   WiFi.reconnect();
-  for (int i = 0; i < 20 && WiFi.status() != WL_CONNECTED; i++) {
+  for (int i = 0; i < 12 && WiFi.status() != WL_CONNECTED; i++) {
     delay(500);
     Serial.print(".");
   }
@@ -124,7 +150,12 @@ bool reconnectWiFi() {
     Serial.printf("\n✅ Reconnecté — IP: %s\n", WiFi.localIP().toString().c_str());
     return true;
   }
-  Serial.println("\n❌ Reconnexion échouée — reboot");
+  // Sinon retente les réseaux connus
+  WiFi.disconnect(true);
+  delay(300);
+  Serial.println(" ✗");
+  if (tryKnownNetworks()) return true;
+  Serial.println("❌ Reconnexion impossible — reboot");
   ESP.restart();
   return false;
 }
@@ -279,8 +310,13 @@ void loop() {
   unsigned long now = millis();
   if (now - lastCapture >= INTERVAL_MS) {
     lastCapture = now;
-    Serial.println("\n--- Capture ---");
-    captureAndUpload();
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("\n--- Capture ---");
+      captureAndUpload();
+    } else {
+      Serial.println("⚠️ WiFi absent — capture ignorée, reconnexion...");
+      reconnectWiFi();
+    }
   }
 
   static unsigned long lastPrint = 0;
