@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="auto">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,16 +16,28 @@
     --border:   rgba(0,0,0,0.12);
     --bg:       #F7F6F1;
     --card:     #ffffff;
+    --shadow:   0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  [data-theme="dark"] {
+    --text:    #E8E6DF;
+    --muted:   #B4B2A9;
+    --border:  rgba(255,255,255,0.10);
+    --bg:      #1C1C1A;
+    --card:    #2C2C2A;
+    --green-bg:#173404;
+    --shadow:  0 1px 4px rgba(0,0,0,0.3);
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    [data-theme="auto"] {
       --text:    #E8E6DF;
       --muted:   #B4B2A9;
-      --border:  rgba(255,255,255,0.12);
+      --border:  rgba(255,255,255,0.10);
       --bg:      #1C1C1A;
       --card:    #2C2C2A;
       --green-bg:#173404;
+      --shadow:  0 1px 4px rgba(0,0,0,0.3);
     }
   }
 
@@ -34,16 +46,22 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
   }
 
   header {
-    padding: 2rem 2rem 1rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 0.5px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    backdrop-filter: blur(8px);
   }
 
   .logo {
@@ -53,25 +71,26 @@
   }
 
   .logo-icon {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     background: var(--green-bg);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
+    flex-shrink: 0;
   }
 
   h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: normal;
     letter-spacing: -0.3px;
     color: var(--green);
   }
 
   .subtitle {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
     font-family: 'Courier New', monospace;
   }
@@ -79,7 +98,7 @@
   .controls {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
@@ -110,6 +129,20 @@
     background: var(--card);
     color: var(--text);
     border: 0.5px solid var(--border);
+  }
+
+  .btn-theme {
+    background: var(--card);
+    color: var(--text);
+    border: 0.5px solid var(--border);
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    font-size: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   main {
@@ -239,14 +272,44 @@
     width: 80px;
   }
 
-  /* Grille miniatures */
-  .grid-section h2 {
-    font-size: 14px;
-    font-weight: 500;
+  /* Accordéon grille */
+  .grid-section {
+    margin-top: 0;
+  }
+
+  .grid-toggle {
+    width: 100%;
+    background: var(--card);
     color: var(--muted);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1.25rem;
+    font-size: 13px;
     font-family: 'Courier New', monospace;
-    margin-bottom: 1rem;
     letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.15s, border-color 0.15s;
+    box-shadow: var(--shadow);
+  }
+  .grid-toggle:hover { border-color: var(--green-mid); color: var(--text); opacity: 1; }
+  .grid-toggle .arrow {
+    font-size: 11px;
+    transition: transform 0.2s;
+  }
+  .grid-toggle.open .arrow { transform: rotate(180deg); }
+
+  .grid-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease, padding 0.35s;
+    padding: 0;
+  }
+  .grid-body.open {
+    max-height: 3000px;
+    padding-top: 1rem;
   }
 
   .thumb-grid {
@@ -344,8 +407,9 @@
     <select id="plant-select">
       <option value="">Chargement...</option>
     </select>
-    <button id="btn-refresh" class="secondary" onclick="loadPhotos()">↺ Actualiser</button>
+    <button id="btn-refresh" class="secondary" onclick="loadPhotos()">↺</button>
     <button id="btn-play" onclick="togglePlay()" disabled>▶ Lecture</button>
+    <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="Basculer thème">🌙</button>
   </div>
 </header>
 
@@ -407,10 +471,15 @@
   </div>
 
   <div class="grid-section">
-    <h2>TOUTES LES PHOTOS</h2>
-    <div class="thumb-grid" id="thumb-grid">
-      <div class="empty-state" style="grid-column:1/-1">
-        Aucune photo chargée
+    <button class="grid-toggle" id="grid-toggle" onclick="toggleGrid()">
+      <span>TOUTES LES PHOTOS <span id="grid-count-label" style="font-weight:normal;opacity:0.7"></span></span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="grid-body" id="grid-body">
+      <div class="thumb-grid" id="thumb-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          Aucune photo chargée
+        </div>
       </div>
     </div>
   </div>
@@ -529,6 +598,8 @@ function renderGrid() {
     </div>`;
   }).join('');
 
+  document.getElementById('grid-count-label').textContent =
+    photos.length > 0 ? `(${photos.length})` : '';
   enableControls();
 }
 
@@ -565,12 +636,14 @@ function showFrame(idx) {
 
   document.getElementById('scrubber').value = idx;
 
-  // Highlight miniature active
+  // Highlight miniature active — scroll uniquement si on n'est pas en lecture
   document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
   const activeThumb = document.getElementById('thumb-' + idx);
   if (activeThumb) {
     activeThumb.classList.add('active');
-    activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (!playing) {
+      activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
   }
 
   // Timeline labels
@@ -644,12 +717,38 @@ function updateStats() {
     videoSec < 60 ? Math.round(videoSec) + 's' : Math.round(videoSec / 60) + ' min';
 }
 
+function toggleGrid() {
+  const toggle = document.getElementById('grid-toggle');
+  const body   = document.getElementById('grid-body');
+  toggle.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDark = current === 'dark' || (current === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.getElementById('btn-theme').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+
+function applyTheme() {
+  const saved = localStorage.getItem('theme');
+  const theme = saved || 'auto';
+  document.documentElement.setAttribute('data-theme', theme);
+  const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.getElementById('btn-theme').textContent = isDark ? '☀️' : '🌙';
+}
+
 // Auto-refresh toutes les 5 min
 setInterval(() => {
   if (!playing) loadPhotos();
 }, 5 * 60 * 1000);
 
 // Init
+applyTheme();
 loadPlants();
 </script>
 </body>
