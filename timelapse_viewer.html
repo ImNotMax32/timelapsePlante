@@ -4,98 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌱 Timelapse Plantes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --green:    #3B6D11;
-    --green-bg: #EAF3DE;
-    --green-mid:#639922;
-    --text:     #2C2C2A;
-    --muted:    #5F5E5A;
-    --border:   rgba(0,0,0,0.12);
-    --bg:       #F7F6F1;
-    --card:     #ffffff;
-    --shadow:   0 1px 4px rgba(0,0,0,0.07);
+    --green:      #1E7A35;
+    --green-soft: #E6F4E8;
+    --green-mid:  #3D9B56;
+    --text:       #111110;
+    --text2:      #6B6B68;
+    --border:     #E4E3DF;
+    --bg:         #F5F4F0;
+    --card:       #FFFFFF;
+    --player-bg:  #0D0D0C;
+    --shadow:     0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    --radius:     12px;
   }
 
   [data-theme="dark"] {
-    --text:    #E8E6DF;
-    --muted:   #B4B2A9;
-    --border:  rgba(255,255,255,0.10);
-    --bg:      #1C1C1A;
-    --card:    #2C2C2A;
-    --green-bg:#173404;
-    --shadow:  0 1px 4px rgba(0,0,0,0.3);
+    --green:      #56C46E;
+    --green-soft: #0F2216;
+    --green-mid:  #4CAF6A;
+    --text:       #F0EFE9;
+    --text2:      #8A8A87;
+    --border:     #272725;
+    --bg:         #111110;
+    --card:       #1C1C1A;
+    --player-bg:  #000000;
+    --shadow:     0 1px 3px rgba(0,0,0,0.4);
   }
 
   @media (prefers-color-scheme: dark) {
     [data-theme="auto"] {
-      --text:    #E8E6DF;
-      --muted:   #B4B2A9;
-      --border:  rgba(255,255,255,0.10);
-      --bg:      #1C1C1A;
-      --card:    #2C2C2A;
-      --green-bg:#173404;
-      --shadow:  0 1px 4px rgba(0,0,0,0.3);
+      --green:      #56C46E;
+      --green-soft: #0F2216;
+      --green-mid:  #4CAF6A;
+      --text:       #F0EFE9;
+      --text2:      #8A8A87;
+      --border:     #272725;
+      --bg:         #111110;
+      --card:       #1C1C1A;
+      --player-bg:  #000000;
+      --shadow:     0 1px 3px rgba(0,0,0,0.4);
     }
   }
 
   body {
-    font-family: 'Georgia', serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    transition: background 0.2s, color 0.2s;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.25s, color 0.25s;
   }
 
+  /* ── HEADER ── */
   header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 10;
-    backdrop-filter: blur(8px);
+    gap: 12px;
   }
 
   .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  .logo-icon {
-    width: 38px;
-    height: 38px;
-    background: var(--green-bg);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
+    gap: 10px;
     flex-shrink: 0;
   }
 
-  h1 {
-    font-size: 20px;
-    font-weight: normal;
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--green-soft);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-name {
+    font-size: 15px;
+    font-weight: 600;
     letter-spacing: -0.3px;
-    color: var(--green);
+    color: var(--text);
   }
 
-  .subtitle {
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'Courier New', monospace;
-  }
-
-  .controls {
+  .header-right {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -103,104 +110,127 @@
   }
 
   select {
-    background: var(--card);
+    background: var(--bg);
     color: var(--text);
-    border: 0.5px solid var(--border);
-    border-radius: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     padding: 6px 10px;
     font-size: 13px;
+    font-family: inherit;
     cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
   }
+  select:focus { border-color: var(--green-mid); }
 
-  button {
-    background: var(--green);
-    color: white;
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     border: none;
-    border-radius: 6px;
-    padding: 7px 14px;
+    border-radius: 8px;
+    padding: 0 14px;
+    height: 34px;
     font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: all 0.15s;
+    white-space: nowrap;
+    line-height: 1;
   }
-  button:hover { opacity: 0.85; }
-  button:disabled { opacity: 0.4; cursor: default; }
-
-  button.secondary {
-    background: var(--card);
-    color: var(--text);
-    border: 0.5px solid var(--border);
+  .btn-primary { background: var(--green); color: white; }
+  .btn-primary:hover { opacity: 0.87; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
   }
-
-  .btn-theme {
-    background: var(--card);
-    color: var(--text);
-    border: 0.5px solid var(--border);
+  .btn-ghost:hover { color: var(--text); border-color: var(--green-mid); }
+  .btn-icon {
     width: 34px;
     height: 34px;
     padding: 0;
-    font-size: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
     justify-content: center;
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    font-size: 15px;
   }
+  .btn-icon:hover { color: var(--text); border-color: var(--green-mid); }
+  .btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
 
+  /* ── MAIN LAYOUT ── */
   main {
-    max-width: 1100px;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  /* Barre de stats */
+  /* ── STATS ── */
   .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    header { padding: 0 1rem; }
+    main { padding: 1rem; }
+    .logo-name { display: none; }
   }
 
   .stat-card {
     background: var(--card);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-icon {
+    font-size: 17px;
+    display: block;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+
+  .stat-value {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    line-height: 1.15;
   }
 
   .stat-label {
     font-size: 12px;
-    color: var(--muted);
-    font-family: 'Courier New', monospace;
-    margin-bottom: 4px;
+    color: var(--text2);
+    margin-top: 4px;
   }
 
-  .stat-value {
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--green);
-  }
-
-  .stat-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  /* Lecteur timelapse */
-  .player-section {
+  /* ── PLAYER ── */
+  .player-card {
     background: var(--card);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
-    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
   }
 
   .player-frame {
-    position: relative;
-    background: #0a0a0a;
+    background: var(--player-bg);
     aspect-ratio: 4/3;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
   }
 
   #player-img {
@@ -210,107 +240,136 @@
     display: none;
   }
 
-  .player-overlay {
+  .player-badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    bottom: 14px;
+    right: 14px;
     background: rgba(0,0,0,0.55);
-    color: white;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 4px;
+    backdrop-filter: blur(6px);
+    color: rgba(255,255,255,0.92);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: none;
+    font-variant-numeric: tabular-nums;
   }
 
   .player-placeholder {
     text-align: center;
-    color: #666;
+    color: #555;
+    user-select: none;
   }
+  .player-placeholder .big { font-size: 44px; margin-bottom: 10px; }
+  .player-placeholder p { font-size: 13px; color: #666; }
 
-  .player-placeholder .big {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-
+  /* ── PLAYER CONTROLS ── */
   .player-controls {
-    padding: 1rem 1.25rem;
-    border-top: 0.5px solid var(--border);
+    padding: 0.9rem 1.25rem;
+    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
   }
 
-  .timeline {
-    flex: 1;
-    min-width: 200px;
+  .ctrl-btns { display: flex; gap: 6px; }
+
+  .btn-ctrl {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    padding: 0;
+    font-size: 16px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
   }
+  .btn-ctrl:hover { border-color: var(--green-mid); }
+  .btn-ctrl:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+  .btn-ctrl.play-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--green);
+    color: white;
+    border: none;
+    font-size: 14px;
+  }
+  .btn-ctrl.play-btn:hover { opacity: 0.87; }
+
+  .scrubber-wrap { flex: 1; min-width: 140px; }
 
   input[type=range] {
     width: 100%;
     accent-color: var(--green);
+    cursor: pointer;
   }
 
-  .timeline-labels {
+  .scrubber-labels {
     display: flex;
     justify-content: space-between;
     font-size: 11px;
-    color: var(--muted);
-    font-family: 'Courier New', monospace;
-    margin-top: 2px;
+    color: var(--text2);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
   }
 
-  .fps-control {
+  .fps-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    color: var(--muted);
+    font-size: 12px;
+    color: var(--text2);
+    flex-shrink: 0;
   }
+  .fps-wrap input[type=range] { width: 70px; }
+  .fps-val { font-weight: 600; color: var(--text); min-width: 38px; }
 
-  .fps-control input[type=range] {
-    width: 80px;
-  }
-
-  /* Accordéon grille */
-  .grid-section {
-    margin-top: 0;
-  }
-
-  .grid-toggle {
-    width: 100%;
+  /* ── GRID ACCORDION ── */
+  .grid-header {
     background: var(--card);
-    color: var(--muted);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 0.85rem 1.25rem;
-    font-size: 13px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 0.05em;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: background 0.15s, border-color 0.15s;
+    cursor: pointer;
     box-shadow: var(--shadow);
+    user-select: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
   }
-  .grid-toggle:hover { border-color: var(--green-mid); color: var(--text); opacity: 1; }
-  .grid-toggle .arrow {
+  .grid-header:hover { border-color: var(--green-mid); }
+  .grid-header-left { display: flex; align-items: center; gap: 10px; }
+  .grid-pill {
+    background: var(--green-soft);
+    color: var(--green);
     font-size: 11px;
-    transition: transform 0.2s;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 20px;
   }
-  .grid-toggle.open .arrow { transform: rotate(180deg); }
+  .grid-arrow { color: var(--text2); font-size: 11px; transition: transform 0.22s; }
+  .grid-header.open .grid-arrow { transform: rotate(180deg); }
 
   .grid-body {
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.35s ease, padding 0.35s;
-    padding: 0;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .grid-body.open {
-    max-height: 3000px;
-    padding-top: 1rem;
-  }
+  .grid-body.open { max-height: 4000px; }
 
   .thumb-grid {
     display: grid;
@@ -320,77 +379,60 @@
 
   .thumb {
     aspect-ratio: 4/3;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
-    border: 1.5px solid transparent;
     cursor: pointer;
-    transition: border-color 0.15s;
-    background: var(--card);
     position: relative;
+    background: var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
+    outline: 2.5px solid transparent;
+    outline-offset: 2px;
   }
-
-  .thumb:hover { border-color: var(--green); }
-  .thumb.active { border-color: var(--green-mid); }
-
-  .thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .thumb-label {
+  .thumb:hover { transform: scale(1.04); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+  .thumb.active { outline-color: var(--green); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb-time {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.55);
-    color: white;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    color: rgba(255,255,255,0.9);
     font-size: 9px;
-    font-family: 'Courier New', monospace;
-    padding: 2px 4px;
+    padding: 14px 5px 4px;
     text-align: center;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Loading / vide */
+  /* ── MISC ── */
   .empty-state {
-    text-align: center;
     padding: 3rem;
-    color: var(--muted);
+    text-align: center;
+    color: var(--text2);
+    grid-column: 1/-1;
   }
 
-  .loading-bar {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-top: 12px;
-  }
-
+  .loading-dots { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
   .loading-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px; height: 7px;
     border-radius: 50%;
-    background: var(--green);
-    animation: pulse 1.2s ease-in-out infinite;
+    background: var(--green-mid);
+    animation: blink 1.2s ease-in-out infinite;
   }
-
   .loading-dot:nth-child(2) { animation-delay: 0.2s; }
   .loading-dot:nth-child(3) { animation-delay: 0.4s; }
 
-  @keyframes pulse {
-    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.15; transform: scale(0.75); }
     40% { opacity: 1; transform: scale(1); }
   }
 
   .status-bar {
     font-size: 12px;
-    font-family: 'Courier New', monospace;
-    color: var(--muted);
-    margin-top: 1rem;
+    color: var(--text2);
     text-align: center;
+    padding-bottom: 0.5rem;
   }
-
   .dot-ok { color: var(--green-mid); }
-  .dot-err { color: #E24B4A; }
+  .dot-err { color: #E05252; }
 </style>
 </head>
 <body>
@@ -398,18 +440,13 @@
 <header>
   <div class="logo">
     <div class="logo-icon">🌿</div>
-    <div>
-      <h1>Timelapse Plantes</h1>
-      <div class="subtitle">zxznkslfndrxxgjluafo.supabase.co</div>
-    </div>
+    <span class="logo-name">Timelapse Plantes</span>
   </div>
-  <div class="controls">
-    <select id="plant-select">
-      <option value="">Chargement...</option>
-    </select>
-    <button id="btn-refresh" class="secondary" onclick="loadPhotos()">↺</button>
-    <button id="btn-play" onclick="togglePlay()" disabled>▶ Lecture</button>
-    <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="Basculer thème">🌙</button>
+  <div class="header-right">
+    <select id="plant-select"><option value="">Chargement...</option></select>
+    <button class="btn btn-ghost btn-icon" onclick="loadPhotos()" title="Actualiser">↺</button>
+    <button class="btn btn-primary" id="btn-play" onclick="togglePlay()" disabled>▶ Lecture</button>
+    <button class="btn btn-icon" id="btn-theme" onclick="toggleTheme()" title="Thème">🌙</button>
   </div>
 </header>
 
@@ -417,69 +454,70 @@
 
   <div class="stats">
     <div class="stat-card">
-      <div class="stat-label">PHOTOS</div>
+      <span class="stat-icon">📷</span>
       <div class="stat-value" id="stat-count">—</div>
-      <div class="stat-sub" id="stat-size">—</div>
+      <div class="stat-label">Photos</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">DURÉE COUVERTE</div>
+      <span class="stat-icon">⏱</span>
       <div class="stat-value" id="stat-duration">—</div>
-      <div class="stat-sub" id="stat-interval">—</div>
+      <div class="stat-label" id="stat-interval">Durée couverte</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">DERNIÈRE PHOTO</div>
-      <div class="stat-value" id="stat-last">—</div>
-      <div class="stat-sub" id="stat-ago">—</div>
+      <span class="stat-icon">🕐</span>
+      <div class="stat-value" id="stat-ago">—</div>
+      <div class="stat-label" id="stat-last">Dernière photo</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">TIMELAPSE @ 12fps</div>
+      <span class="stat-icon">🎦</span>
       <div class="stat-value" id="stat-video">—</div>
-      <div class="stat-sub">durée estimée</div>
+      <div class="stat-label">Timelapse à 12 fps</div>
     </div>
   </div>
 
-  <div class="player-section">
+  <div class="player-card">
     <div class="player-frame" id="player-frame">
       <div class="player-placeholder" id="placeholder">
         <div class="big">🌱</div>
-        <div>Sélectionne une plante et charge les photos</div>
+        <p>Sélectionne une plante pour commencer</p>
       </div>
       <img id="player-img" alt="Photo timelapse" />
-      <div class="player-overlay" id="player-overlay" style="display:none">
+      <div class="player-badge" id="player-badge">
         <span id="overlay-idx">1/1</span> · <span id="overlay-time"></span>
       </div>
     </div>
     <div class="player-controls">
-      <div style="display:flex;gap:8px;align-items:center">
-        <button onclick="stepFrame(-1)" id="btn-prev" disabled>‹</button>
-        <button onclick="togglePlay()" id="btn-play2" disabled>▶</button>
-        <button onclick="stepFrame(1)" id="btn-next" disabled>›</button>
+      <div class="ctrl-btns">
+        <button class="btn-ctrl" onclick="stepFrame(-1)" id="btn-prev" disabled>‹</button>
+        <button class="btn-ctrl play-btn" onclick="togglePlay()" id="btn-play2" disabled>▶</button>
+        <button class="btn-ctrl" onclick="stepFrame(1)" id="btn-next" disabled>›</button>
       </div>
-      <div class="timeline">
+      <div class="scrubber-wrap">
         <input type="range" id="scrubber" min="0" value="0" step="1" oninput="scrubTo(this.value)" disabled>
-        <div class="timeline-labels">
+        <div class="scrubber-labels">
           <span id="tl-start">—</span>
           <span id="tl-end">—</span>
         </div>
       </div>
-      <div class="fps-control">
+      <div class="fps-wrap">
         <span>Vitesse</span>
         <input type="range" id="fps-slider" min="1" max="30" value="12" oninput="updateFps(this.value)" disabled>
-        <span id="fps-label">12 fps</span>
+        <span class="fps-val" id="fps-label">12 fps</span>
       </div>
     </div>
   </div>
 
-  <div class="grid-section">
-    <button class="grid-toggle" id="grid-toggle" onclick="toggleGrid()">
-      <span>TOUTES LES PHOTOS <span id="grid-count-label" style="font-weight:normal;opacity:0.7"></span></span>
-      <span class="arrow">▼</span>
+  <div>
+    <button class="grid-header" id="grid-toggle" onclick="toggleGrid()">
+      <div class="grid-header-left">
+        <span>Photos</span>
+        <span class="grid-pill" id="grid-count-label" style="display:none"></span>
+      </div>
+      <span class="grid-arrow">▼</span>
     </button>
     <div class="grid-body" id="grid-body">
       <div class="thumb-grid" id="thumb-grid">
-        <div class="empty-state" style="grid-column:1/-1">
-          Aucune photo chargée
-        </div>
+        <div class="empty-state">Aucune photo chargée</div>
       </div>
     </div>
   </div>
@@ -539,37 +577,33 @@ function fmtDuration(seconds) {
 }
 
 async function loadPlants() {
-  status('Chargement des plantes...');
+  status('Chargement...');
   try {
     const data = await apiFetch('/rest/v1/timelapse_photos?select=plant_name&order=plant_name');
     const names = [...new Set(data.map(r => r.plant_name))];
     const sel = document.getElementById('plant-select');
     if (names.length === 0) {
       sel.innerHTML = '<option>Aucune photo encore</option>';
-      status('Aucune photo dans la base. Lance l\'ESP32 !', false);
+      status('Aucune photo dans la base.', false);
       return;
     }
     sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
     loadPhotos();
   } catch (e) {
-    status('Erreur chargement: ' + e.message, false);
+    status('Erreur: ' + e.message, false);
   }
 }
 
 async function loadPhotos() {
   const plant = document.getElementById('plant-select').value;
   if (!plant) return;
-
   status('Chargement des photos...');
   document.getElementById('thumb-grid').innerHTML = `
-    <div class="empty-state" style="grid-column:1/-1">
-      <div class="loading-bar">
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
+    <div class="empty-state">
+      <div class="loading-dots">
+        <div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>
       </div>
     </div>`;
-
   try {
     const data = await apiFetch(
       `/rest/v1/timelapse_photos?plant_name=eq.${encodeURIComponent(plant)}&order=taken_at.asc&select=*`
@@ -578,7 +612,7 @@ async function loadPhotos() {
     renderGrid();
     updateStats();
     if (photos.length > 0) showFrame(0);
-    status(`${photos.length} photos chargées pour "${plant}"`);
+    status(`${photos.length} photos chargées pour « ${plant} »`);
   } catch (e) {
     status('Erreur: ' + e.message, false);
   }
@@ -587,31 +621,30 @@ async function loadPhotos() {
 function renderGrid() {
   const grid = document.getElementById('thumb-grid');
   if (photos.length === 0) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Aucune photo</div>';
+    grid.innerHTML = '<div class="empty-state">Aucune photo</div>';
     return;
   }
   grid.innerHTML = photos.map((p, i) => {
     const ts = new Date(p.taken_at).getTime() / 1000;
     return `<div class="thumb" id="thumb-${i}" onclick="showFrame(${i})">
       <img src="${imgUrl(p.storage_path)}" alt="" loading="lazy" />
-      <div class="thumb-label">${fmtDate(ts)}</div>
+      <div class="thumb-time">${fmtDate(ts)}</div>
     </div>`;
   }).join('');
-
-  document.getElementById('grid-count-label').textContent =
-    photos.length > 0 ? `(${photos.length})` : '';
+  const pill = document.getElementById('grid-count-label');
+  pill.textContent = photos.length;
+  pill.style.display = 'inline';
   enableControls();
 }
 
 function enableControls() {
-  const btns = ['btn-play', 'btn-play2', 'btn-prev', 'btn-next'];
-  btns.forEach(id => {
+  ['btn-play','btn-play2','btn-prev','btn-next'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.disabled = photos.length === 0;
   });
-  const scrubber = document.getElementById('scrubber');
-  scrubber.max = Math.max(0, photos.length - 1);
-  scrubber.disabled = photos.length === 0;
+  const s = document.getElementById('scrubber');
+  s.max = Math.max(0, photos.length - 1);
+  s.disabled = photos.length === 0;
   document.getElementById('fps-slider').disabled = photos.length === 0;
 }
 
@@ -619,69 +652,41 @@ function showFrame(idx) {
   if (photos.length === 0) return;
   idx = Math.max(0, Math.min(photos.length - 1, idx));
   currentIdx = idx;
-
   const p = photos[idx];
   const img = document.getElementById('player-img');
-  const placeholder = document.getElementById('placeholder');
-  const overlay = document.getElementById('player-overlay');
-
+  const badge = document.getElementById('player-badge');
   img.src = imgUrl(p.storage_path);
   img.style.display = 'block';
-  placeholder.style.display = 'none';
-  overlay.style.display = 'block';
-
+  document.getElementById('placeholder').style.display = 'none';
+  badge.style.display = 'block';
   const ts = new Date(p.taken_at).getTime() / 1000;
-  document.getElementById('overlay-idx').textContent = `${idx + 1}/${photos.length}`;
+  document.getElementById('overlay-idx').textContent = `${idx + 1} / ${photos.length}`;
   document.getElementById('overlay-time').textContent = fmtDate(ts);
-
   document.getElementById('scrubber').value = idx;
-
-  // Highlight miniature active — scroll uniquement si on n'est pas en lecture
   document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
   const activeThumb = document.getElementById('thumb-' + idx);
   if (activeThumb) {
     activeThumb.classList.add('active');
-    if (!playing) {
-      activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }
+    if (!playing) activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
-
-  // Timeline labels
-  if (idx === 0) {
-    const first = new Date(photos[0].taken_at).getTime() / 1000;
-    document.getElementById('tl-start').textContent = fmtDate(first);
-  }
-  if (photos.length > 1) {
-    const last = new Date(photos[photos.length-1].taken_at).getTime() / 1000;
-    document.getElementById('tl-end').textContent = fmtDate(last);
-  }
+  if (idx === 0) document.getElementById('tl-start').textContent = fmtDate(new Date(photos[0].taken_at).getTime() / 1000);
+  if (photos.length > 1) document.getElementById('tl-end').textContent = fmtDate(new Date(photos[photos.length-1].taken_at).getTime() / 1000);
 }
 
-function stepFrame(delta) {
-  showFrame(currentIdx + delta);
-}
-
-function scrubTo(val) {
-  showFrame(parseInt(val));
-}
+function stepFrame(delta) { showFrame(currentIdx + delta); }
+function scrubTo(val) { showFrame(parseInt(val)); }
 
 function togglePlay() {
   playing = !playing;
-  const label = playing ? '⏸ Pause' : '▶ Lecture';
-  document.getElementById('btn-play').textContent = label;
+  document.getElementById('btn-play').textContent = playing ? '⏸ Pause' : '▶ Lecture';
   document.getElementById('btn-play2').textContent = playing ? '⏸' : '▶';
-
-  if (playing) {
-    playLoop();
-  } else {
-    clearTimeout(timer);
-  }
+  if (playing) playLoop(); else clearTimeout(timer);
 }
 
 function playLoop() {
   if (!playing) return;
   let next = currentIdx + 1;
-  if (next >= photos.length) next = 0; // boucle
+  if (next >= photos.length) next = 0;
   showFrame(next);
   timer = setTimeout(playLoop, 1000 / fps);
 }
@@ -693,35 +698,25 @@ function updateFps(val) {
 
 function updateStats() {
   if (photos.length === 0) return;
-
   const first = new Date(photos[0].taken_at).getTime() / 1000;
   const last  = new Date(photos[photos.length-1].taken_at).getTime() / 1000;
   const durationSec = last - first;
-
   document.getElementById('stat-count').textContent = photos.length;
-  document.getElementById('stat-size').textContent = ''; // optionnel
-
   if (durationSec > 0) {
     document.getElementById('stat-duration').textContent = fmtDuration(durationSec);
     const intervalSec = durationSec / (photos.length - 1);
     document.getElementById('stat-interval').textContent = 'intervalle ~' + Math.round(intervalSec / 60) + ' min';
-  } else {
-    document.getElementById('stat-duration').textContent = '—';
   }
-
-  document.getElementById('stat-last').textContent = fmtDate(last);
   document.getElementById('stat-ago').textContent = 'il y a ' + fmtAgo(last);
-
+  document.getElementById('stat-last').textContent = fmtDate(last);
   const videoSec = photos.length / 12;
   document.getElementById('stat-video').textContent =
-    videoSec < 60 ? Math.round(videoSec) + 's' : Math.round(videoSec / 60) + ' min';
+    videoSec < 60 ? Math.round(videoSec) + 's' : (videoSec / 60).toFixed(1) + ' min';
 }
 
 function toggleGrid() {
-  const toggle = document.getElementById('grid-toggle');
-  const body   = document.getElementById('grid-body');
-  toggle.classList.toggle('open');
-  body.classList.toggle('open');
+  document.getElementById('grid-toggle').classList.toggle('open');
+  document.getElementById('grid-body').classList.toggle('open');
 }
 
 function toggleTheme() {
@@ -742,12 +737,7 @@ function applyTheme() {
   document.getElementById('btn-theme').textContent = isDark ? '☀️' : '🌙';
 }
 
-// Auto-refresh toutes les 5 min
-setInterval(() => {
-  if (!playing) loadPhotos();
-}, 5 * 60 * 1000);
-
-// Init
+setInterval(() => { if (!playing) loadPhotos(); }, 5 * 60 * 1000);
 applyTheme();
 loadPlants();
 </script>
